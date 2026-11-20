@@ -1,0 +1,117 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:1500px;height:1500px;overflow:hidden}
+body{background:radial-gradient(ellipse at 50% 30%,#1E2A4A 0%,#121A33 55%,#0A0F1F 100%);color:#F3EFE6;font-family:Inter,sans-serif}
+h1{font-family:Lora,serif;font-weight:500;font-size:64px;margin:56px 0 6px;text-align:center}
+h1 em{color:#F2A65A}
+.lead{text-align:center;color:#AEB8D6;font-size:24px;margin-bottom:24px}
+.row{display:flex;align-items:center;margin:0 60px 26px;padding:22px 30px;border-radius:36px;background:rgba(243,239,230,.04);border:1.5px solid rgba(243,239,230,.1)}
+.meta{width:300px;flex:none}
+.meta .n{font-family:Lora,serif;font-size:46px}
+.meta .n span{font-size:22px;color:#7FB7A4;font-family:Inter;letter-spacing:3px;display:block;margin-top:6px;text-transform:uppercase}
+.meta p{color:#AEB8D6;font-size:20px;line-height:1.45;margin:12px 0 0}
+.cells{display:flex;gap:18px;flex:1;justify-content:space-around}
+.cell{text-align:center}
+.cell .l{font-size:18px;letter-spacing:4px;text-transform:uppercase;color:#AEB8D6;margin-top:4px}
+svg{display:block}
+</style></head><body>
+<h1>Mascote do <em>HelpTime</em> · 3 propostas</h1>
+<div class="lead">Cada uma em 3 expressões: focado · pausa · comemorando</div>
+
+<div class="row"><div class="meta"><div class="n">Lumi<span>A lua sonolenta</span></div>
+<p>Vai enchendo de luz conforme o foco avança. Cochila nas pausas. Na meta do dia, vira lua cheia.</p></div>
+<div class="cells" id="lua"></div></div>
+
+<div class="row"><div class="meta"><div class="n">Tico<span>A estrelinha</span></div>
+<p>Brilha mais a cada sessão concluída. Se você se distrai, só diminui o brilho — nunca apaga.</p></div>
+<div class="cells" id="estrela"></div></div>
+
+<div class="row"><div class="meta"><div class="n">Nino<span>O cometinha</span></div>
+<p>Viaja junto no foco com a cauda reta. Na pausa, se enrola na cauda como num cobertor.</p></div>
+<div class="cells" id="cometa"></div></div>
+
+<script>
+const INK='#1B2440', BLUSH='rgba(232,130,120,.55)';
+const W=300,H=330;
+function face(cx,cy,s,e){
+  let g=`<g transform="translate(${cx} ${cy}) scale(${s})">`;
+  g+=`<ellipse cx="-34" cy="14" rx="13" ry="8" fill="${BLUSH}"/><ellipse cx="34" cy="14" rx="13" ry="8" fill="${BLUSH}"/>`;
+  if(e==='foco'){
+    g+=`<ellipse cx="-20" cy="-6" rx="7.5" ry="10" fill="${INK}"/><ellipse cx="20" cy="-6" rx="7.5" ry="10" fill="${INK}"/>`;
+    g+=`<circle cx="-17.5" cy="-10" r="2.6" fill="#fff"/><circle cx="22.5" cy="-10" r="2.6" fill="#fff"/>`;
+    g+=`<path d="M -8 14 Q 0 20 8 14" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  } else if(e==='pausa'){
+    g+=`<path d="M -28 -4 Q -20 4 -12 -4" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+    g+=`<path d="M 12 -4 Q 20 4 28 -4" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+    g+=`<ellipse cx="0" cy="16" rx="4.5" ry="5.5" fill="${INK}"/>`;
+  } else {
+    g+=`<path d="M -28 0 L -20 -9 L -12 0" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    g+=`<path d="M 12 0 L 20 -9 L 28 0" stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    g+=`<path d="M -12 10 Q 0 30 12 10 Z" fill="${INK}"/><path d="M -6 19 Q 0 26 6 19 Q 0 16 -6 19Z" fill="#E8827A"/>`;
+  }
+  return g+'</g>';
+}
+const halo=(cx,cy,r,a,id)=>`<defs><radialGradient id="h${id}"><stop offset="0" stop-color="#F2A65A" stop-opacity="${a}"/><stop offset="1" stop-color="#F2A65A" stop-opacity="0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#h${id})"/>`;
+const zzz=(x,y)=>`<g fill="#AEB8D6" font-family="Lora,serif" font-style="italic"><text x="${x}" y="${y}" font-size="30">z</text><text x="${x+22}" y="${y-24}" font-size="22">z</text><text x="${x+38}" y="${y-42}" font-size="16">z</text></g>`;
+function spark(x,y,r,c='#F2A65A'){return `<path d="M ${x} ${y-r} Q ${x} ${y} ${x+r} ${y} Q ${x} ${y} ${x} ${y+r} Q ${x} ${y} ${x-r} ${y} Q ${x} ${y} ${x} ${y-r} Z" fill="${c}"/>`}
+const label={foco:'Focado',pausa:'Pausa',festa:'Comemorando'};
+function cell(svg,e){return `<div class="cell"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${svg}</svg><div class="l">${label[e]}</div></div>`}
+
+// LUA — corpo redondo, fase escura cobre parte; mais cheia = mais foco
+function lua(e){
+  const cx=150,cy=165,r=100;
+  const phase={foco:.45,pausa:.15,festa:1}[e]; // fração iluminada
+  let s=`<defs><radialGradient id="lg${e}" cx="40%" cy="35%"><stop offset="0" stop-color="#FFE3B8"/><stop offset="1" stop-color="#F2A65A"/></radialGradient>
+  <clipPath id="lc${e}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs>`;
+  if(e==='festa') s+=halo(cx,cy,r+45,.55,'l'+e);
+  s+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#lg${e})"/>`;
+  s+=`<circle cx="${cx-70}" cy="${cy-38}" r="12" fill="rgba(214,140,70,.35)"/><circle cx="${cx+62}" cy="${cy+50}" r="9" fill="rgba(214,140,70,.3)"/>`;
+  if(phase<1){ const off=(r*2)*phase; s+=`<circle clip-path="url(#lc${e})" cx="${cx+off}" cy="${cy}" r="${r}" fill="rgba(18,26,51,.3)"/>`; }
+  if(e==='pausa'){ // gorrinho
+    s+=`<path d="M ${cx-58} ${cy-74} Q ${cx+10} ${cy-150} ${cx+92} ${cy-118} Q ${cx+40} ${cy-104} ${cx+50} ${cy-62} Z" fill="#7FB7A4"/><circle cx="${cx+96}" cy="${cy-118}" r="13" fill="#F3EFE6"/>`;
+    s+=`<path d="M ${cx-62} ${cy-70} Q ${cx} ${cy-92} ${cx+56} ${cy-60}" stroke="#F3EFE6" stroke-width="12" fill="none" stroke-linecap="round"/>`;
+    s+=zzz(cx+92,cy-40);
+  }
+  if(e==='festa'){ s+=spark(40,70,16)+spark(262,90,12,'#7FB7A4')+spark(250,270,14)+spark(52,262,10,'#F3EFE6'); }
+  s+=face(cx-8,cy+6,1.05,e);
+  return s;
+}
+// ESTRELA — cantos arredondados, brilho varia
+function starPath(cx,cy,R,r){let p='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2?r:R;p+=(i?'L':'M')+(cx+rr*Math.cos(a)).toFixed(1)+' '+(cy+rr*Math.sin(a)).toFixed(1)+' ';}return p+'Z'}
+function estrela(e){
+  const cx=150,cy=172;
+  const glow={foco:.22,pausa:.08,festa:.38}[e], fill={foco:'#F7C98A',pausa:'#C9A97E',festa:'#FFD9A0'}[e];
+  let s=halo(cx,cy,e==='festa'?150:130,glow*1.6,'s'+e);
+  const rot=e==='festa'?-8:0;
+  s+=`<g transform="rotate(${rot} ${cx} ${cy})"><path d="${starPath(cx,cy,104,52)}" fill="${fill}" stroke="${fill}" stroke-width="34" stroke-linejoin="round"/></g>`;
+  if(e==='pausa'){ s+=zzz(cx+70,cy-70); }
+  if(e==='foco'){ // livrinho
+    s+=`<g transform="translate(${cx} ${cy+62})"><path d="M -40 -6 Q -20 -14 0 -4 Q 20 -14 40 -6 L 40 18 Q 20 10 0 20 Q -20 10 -40 18 Z" fill="#F3EFE6"/><path d="M 0 -4 L 0 20" stroke="#AEB8D6" stroke-width="3"/></g>`;
+  }
+  if(e==='festa'){ s+=spark(44,64,16,'#7FB7A4')+spark(258,70,14)+spark(268,250,11,'#F3EFE6')+spark(36,240,13); }
+  s+=face(cx,cy+4,.95,e);
+  return s;
+}
+// COMETA — cabeça redonda + cauda
+function cometa(e){
+  const cx=e==='pausa'?150:178, cy=e==='pausa'?178:160;
+  let s=`<defs><linearGradient id="tg${e}" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FB7A4" stop-opacity=".95"/><stop offset="1" stop-color="#7FB7A4" stop-opacity="0"/></linearGradient>
+  <radialGradient id="cg${e}" cx="40%" cy="35%"><stop offset="0" stop-color="#E9F4EE"/><stop offset="1" stop-color="#9CCBB9"/></radialGradient></defs>`;
+  if(e==='foco'){
+    s+=`<path d="M ${cx-40} ${cy-50} Q ${cx-120} ${cy+20} ${cx-160} ${cy+150} Q ${cx-60} ${cy+60} ${cx+30} ${cy+70} Z" fill="url(#tg${e})"/>`;
+  } else if(e==='pausa'){ // cauda enrolada como cobertor
+    s+=`<path d="M ${cx-100} ${cy+30} Q ${cx-110} ${cy+110} ${cx} ${cy+112} Q ${cx+110} ${cy+110} ${cx+100} ${cy+30} Q ${cx+40} ${cy+70} ${cx} ${cy+66} Q ${cx-40} ${cy+70} ${cx-100} ${cy+30} Z" fill="#7FB7A4"/>`;
+    s+=zzz(cx+70,cy-60);
+  } else {
+    s+=`<path d="M ${cx-50} ${cy+30} Q ${cx-150} ${cy+10} ${cx-150} ${cy-80} Q ${cx-120} ${cy-20} ${cx-40} ${cy-40} Z" fill="url(#tg${e})"/>`;
+    s+=spark(250,60,16)+spark(270,230,12,'#F3EFE6')+spark(60,280,14)+spark(150,40,10,'#7FB7A4');
+  }
+  s+=`<circle cx="${cx}" cy="${cy}" r="78" fill="url(#cg${e})"/>`;
+  if(e==='pausa') s+=`<path d="M ${cx-96} ${cy+34} Q ${cx} ${cy+86} ${cx+96} ${cy+34} Q ${cx+90} ${cy+100} ${cx} ${cy+104} Q ${cx-90} ${cy+100} ${cx-96} ${cy+34} Z" fill="#6AA592"/>`;
+  s+=face(cx,cy+4,.85,e);
+  return s;
+}
+for(const [id,fn] of [['lua',lua],['estrela',estrela],['cometa',cometa]])
+  document.getElementById(id).innerHTML=['foco','pausa','festa'].map(e=>cell(fn(e),e)).join('');
+</script>
+</body></html>
