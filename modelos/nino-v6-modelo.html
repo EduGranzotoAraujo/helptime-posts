@@ -1,0 +1,166 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden}
+body{background:radial-gradient(ellipse at 50% 42%,#1E2A4A 0%,#121A33 55%,#0A0F1F 100%);color:#F3EFE6;font-family:Inter,sans-serif;position:relative}
+#stars{position:absolute;inset:0}
+.star{position:absolute;border-radius:50%;background:#F3EFE6}
+.scene{position:absolute;inset:0;opacity:0}
+.head{position:absolute;left:0;right:0;top:300px;text-align:center;font-family:Lora,serif;font-weight:500;font-size:126px;line-height:1.1}
+.head em{color:#7FB7A4;font-style:italic}
+.stage{position:absolute;left:140px;top:620px;width:800px;height:800px}
+.pill{position:absolute;left:0;right:0;top:1390px;text-align:center}
+.pill span{display:inline-flex;gap:18px;align-items:baseline;padding:20px 40px;border-radius:999px;background:rgba(243,239,230,.07);border:2px solid rgba(243,239,230,.14);font-size:56px;font-weight:300;font-variant-numeric:tabular-nums}
+.pill small{font-size:28px;letter-spacing:6px;text-transform:uppercase;font-weight:500}
+.brand{position:absolute;left:0;right:0;top:980px;text-align:center;font-family:Lora,serif;font-size:140px;font-weight:500}
+.brand span{color:#F2A65A;font-style:italic}
+.tag{position:absolute;left:0;right:0;top:1170px;text-align:center;font-family:Lora,serif;font-style:italic;font-size:56px;color:#7FB7A4}
+.btnw{position:absolute;left:0;right:0;top:1290px;text-align:center}
+.btn{display:inline-block;background:#F2A65A;color:#0A0F1F;font-weight:600;font-size:52px;padding:32px 76px;border-radius:999px}
+.cta-sub{position:absolute;left:0;right:0;top:1460px;text-align:center;color:#AEB8D6;font-size:40px}
+
+.clock{position:absolute;left:0;right:0;top:620px;text-align:center}
+.clock span{display:inline-flex;gap:14px;align-items:center;padding:16px 34px;border-radius:999px;background:rgba(243,239,230,.07);border:2px solid rgba(243,239,230,.14);font-size:44px;color:#AEB8D6;font-variant-numeric:tabular-nums}
+.clock i{width:14px;height:14px;border-radius:50%;background:#E0726B;display:inline-block}
+
+.chip2{position:absolute;left:0;right:0;top:620px;text-align:center}
+.chip2 span{display:inline-flex;gap:14px;align-items:center;padding:16px 34px;border-radius:999px;background:rgba(243,239,230,.07);border:2px solid rgba(243,239,230,.14);font-size:44px;color:#AEB8D6;font-variant-numeric:tabular-nums}
+.chip2 i{width:14px;height:14px;border-radius:50%;background:#E0726B;display:inline-block}
+</style></head><body>
+<div id="stars"></div>
+<!-- COMEÇO: já no conflito -->
+<div class="scene" id="s1">
+  <div class="head">Estudou horas<br><em>sem pausa?</em></div>
+  <div class="clock"><span><i id="dot"></i><b id="ct" style="font-weight:400;color:#F3EFE6">2:59:40</b>&nbsp;sem parar</span></div>
+  <div class="stage"><svg id="n1" width="800" height="800" viewBox="0 0 800 800"></svg></div>
+</div>
+<!-- MEIO -->
+<div class="scene" id="s2">
+  <div class="head">E nada<br><em>mais entra…</em></div>
+  <div class="stage"><svg id="n2" width="800" height="800" viewBox="0 0 800 800"></svg></div>
+</div>
+<!-- VIRADA -->
+<div class="scene" id="s3">
+  <div class="head">Pausa de 5.<br><em>Sem culpa.</em></div>
+  <div class="stage"><svg id="n3" width="800" height="800" viewBox="0 0 800 800"></svg></div>
+  <div class="pill"><span><small style="color:#7FB7A4">Pausa breve</small><b id="d3" style="font-weight:300">05:00</b></span></div>
+</div>
+<!-- FIM -->
+<div class="scene" id="s4">
+  <div class="stage" style="top:380px;left:290px;width:500px;height:500px"><svg id="n4" width="500" height="500" viewBox="150 50 500 500"></svg></div>
+  <div class="brand">Help<span>Time</span></div>
+  <div class="tag">Foco calmo, sem culpa.</div>
+  <div class="btnw"><div class="btn">Comece em 1 clique</div></div>
+  <div class="cta-sub">sem cadastro · link na bio</div>
+</div>
+<script>
+let seed=31;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const T=9.6, stars=[];const box=document.getElementById('stars');
+for(let i=0;i<130;i++){const s=document.createElement('div');s.className='star';const z=rnd()*3+1;
+ s.style.cssText=`width:${z}px;height:${z}px;left:${rnd()*1080}px;top:${rnd()*1920}px`;box.appendChild(s);
+ stars.push({el:s,base:rnd()*.4+.25,ph:rnd()*6.28,k:1+Math.floor(rnd()*3)});}
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
+const $=id=>document.getElementById(id);
+const TAU=2*Math.PI;
+const INK='#1B2440', BLUSH='rgba(232,130,120,.6)';
+const mmss=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const hms=s=>`${Math.floor(s/3600)}:${String(Math.floor(s/60)%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+function face(e,blink){
+  let g=`<ellipse cx="-68" cy="28" rx="26" ry="15" fill="${BLUSH}"/><ellipse cx="68" cy="28" rx="26" ry="15" fill="${BLUSH}"/>`;
+  if(e==='foco'){
+    g+=`<g transform="scale(1 ${blink})"><ellipse cx="-40" cy="-12" rx="15" ry="20" fill="${INK}"/><ellipse cx="40" cy="-12" rx="15" ry="20" fill="${INK}"/>`;
+    g+=blink>.5?`<circle cx="-35" cy="-20" r="5.5" fill="#fff"/><circle cx="45" cy="-20" r="5.5" fill="#fff"/>`:'';
+    g+=`</g><path d="M -16 28 Q 0 40 16 28" stroke="${INK}" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+  } else if(e==='pausa'){
+    g+=`<path d="M -56 -8 Q -40 8 -24 -8" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M 24 -8 Q 40 8 56 -8" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round"/>`;
+    g+=`<ellipse cx="0" cy="32" rx="9" ry="11" fill="${INK}"/>`;
+  } else {
+    g+=`<path d="M -56 0 L -40 -18 L -24 0" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M 24 0 L 40 -18 L 56 0" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    g+=`<path d="M -24 20 Q 0 60 24 20 Z" fill="${INK}"/><path d="M -12 38 Q 0 52 12 38 Q 0 32 -12 38Z" fill="#E8827A"/>`;
+  }
+  return g;
+}
+const defs=id=>`<defs><linearGradient id="tg${id}" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FB7A4" stop-opacity=".95"/><stop offset="1" stop-color="#7FB7A4" stop-opacity="0"/></linearGradient>
+<radialGradient id="cg${id}" cx="40%" cy="35%"><stop offset="0" stop-color="#E9F4EE"/><stop offset="1" stop-color="#9CCBB9"/></radialGradient>
+<radialGradient id="hg${id}"><stop offset="0" stop-color="#7FB7A4" stop-opacity=".28"/><stop offset="1" stop-color="#7FB7A4" stop-opacity="0"/></radialGradient></defs>`;
+const spark=(x,y,r,c,o)=>`<path opacity="${o}" d="M ${x} ${y-r} Q ${x} ${y} ${x+r} ${y} Q ${x} ${y} ${x} ${y+r} Q ${x} ${y} ${x-r} ${y} Q ${x} ${y} ${x} ${y-r} Z" fill="${c}"/>`;
+
+function ninoFoco(t){ // voando, cauda reta balançando de leve
+  const cx=470,cy=360+12*Math.sin(TAU*t/(T/3)), sw=4*Math.sin(TAU*t/2.75);
+  const bl=(t%T>1.9&&t%T<2.06)?.12:1;
+  let s=defs('a')+`<circle cx="${cx}" cy="${cy}" r="260" fill="url(#hga)"/>`;
+  s+=`<g transform="rotate(${sw} ${cx} ${cy})"><path d="M ${cx-80} ${cy-100} Q ${cx-240} ${cy+40} ${cx-330} ${cy+320} Q ${cx-120} ${cy+120} ${cx+60} ${cy+140} Z" fill="url(#tga)"/></g>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="156" fill="url(#cga)"/>`;
+  return s+`<g transform="translate(${cx} ${cy+8})">${face('foco',bl)}</g>`;
+}
+function ninoPausa(t){ // enrolado na cauda, respirando, zzz subindo
+  const cx=400,cy=340, br=1+.025*Math.sin(TAU*t/3.5);
+  let s=defs('b')+`<circle cx="${cx}" cy="${cy+40}" r="260" fill="url(#hgb)"/>`;
+  s+=`<g transform="translate(${cx} ${cy}) scale(${br}) translate(${-cx} ${-cy})">`;
+  s+=`<path d="M ${cx-200} ${cy+60} Q ${cx-220} ${cy+220} ${cx} ${cy+224} Q ${cx+220} ${cy+220} ${cx+200} ${cy+60} Q ${cx+80} ${cy+140} ${cx} ${cy+132} Q ${cx-80} ${cy+140} ${cx-200} ${cy+60} Z" fill="#7FB7A4"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="156" fill="url(#cgb)"/>`;
+  s+=`<path d="M ${cx-192} ${cy+68} Q ${cx} ${cy+172} ${cx+192} ${cy+68} Q ${cx+180} ${cy+200} ${cx} ${cy+208} Q ${cx-180} ${cy+200} ${cx-192} ${cy+68} Z" fill="#6AA592"/>`;
+  s+=`<g transform="translate(${cx} ${cy+8})">${face('pausa',1)}</g></g>`;
+  for(let i=0;i<3;i++){const p=((t/2.6)+i/3)%1;const o=Math.sin(Math.PI*p);
+    s+=`<text x="${cx+150+p*60}" y="${cy-120-p*170}" font-family="Lora,serif" font-style="italic" font-size="${34+p*26}" fill="#AEB8D6" opacity="${o*.9}">z</text>`;}
+  return s;
+}
+function ninoFesta(t){
+  const cx=400,cy=300-10*Math.abs(Math.sin(TAU*t/1.8));
+  let s=defs('c')+`<circle cx="${cx}" cy="${cy}" r="230" fill="url(#hgc)"/>`;
+  s+=`<path d="M ${cx-100} ${cy+60} Q ${cx-300} ${cy+20} ${cx-300} ${cy-160} Q ${cx-240} ${cy-40} ${cx-80} ${cy-80} Z" fill="url(#tgc)"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="156" fill="url(#cgc)"/><g transform="translate(${cx} ${cy+8})">${face('festa',1)}</g>`;
+  [[620,110,30,'#F2A65A',0],[640,420,22,'#F3EFE6',1.3],[180,470,26,'#F2A65A',2.1],[420,70,18,'#7FB7A4',.7]].forEach(([x,y,r,c,ph])=>{
+    s+=spark(x,y,r,c,(.55+.45*Math.sin(TAU*t/2.2+ph)).toFixed(2));});
+  return s;
+}
+
+// rosto "cansadinho": pálpebras pesadas, boquinha reta (nunca bravo ou em pânico)
+function faceCansado(){
+  let g=`<ellipse cx="-68" cy="28" rx="26" ry="15" fill="${BLUSH}" opacity=".6"/><ellipse cx="68" cy="28" rx="26" ry="15" fill="${BLUSH}" opacity=".6"/>`;
+  g+=`<path d="M -56 -4 A 16 13 0 0 0 -24 -4 Z" fill="${INK}"/><path d="M 24 -4 A 16 13 0 0 0 56 -4 Z" fill="${INK}"/>`;
+  g+=`<path d="M -58 -6 Q -40 -14 -22 -6" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M 22 -6 Q 40 -14 58 -6" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  g+=`<path d="M -12 34 Q -6 29 0 33 Q 6 37 12 32" stroke="${INK}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+  return g;
+}
+function livroAberto(y,blur){
+  let s=`<g transform="translate(400 ${y})"><path d="M -300 -40 Q -150 -90 0 -40 L 0 70 Q -150 20 -300 70 Z" fill="#F3EFE6"/><path d="M 300 -40 Q 150 -90 0 -40 L 0 70 Q 150 20 300 70 Z" fill="#E6E0D3"/>`;
+  for(let i=0;i<4;i++){s+=`<path d="M -260 ${-30+i*22} Q -150 ${-70+i*22} -40 ${-30+i*22}" stroke="#AEB8D6" stroke-width="${5+blur*4}" fill="none" opacity="${.7-blur*.35}"/><path d="M 40 ${-30+i*22} Q 150 ${-70+i*22} 260 ${-30+i*22}" stroke="#AEB8D6" stroke-width="${5+blur*4}" fill="none" opacity="${.7-blur*.35}"/>`;}
+  return s+`<path d="M 0 -40 L 0 70" stroke="#C9C2B4" stroke-width="5"/></g>`;
+}
+// Começo: Nino cansadinho debruçado no livro, balançando devagar
+function cansado(t,drop){
+  const cx=400, cy=380+drop+8*Math.sin(TAU*t/(T/3)), sw=3*Math.sin(TAU*t/(T/2));
+  let s=defs('k'+(drop?1:0))+`<circle cx="${cx}" cy="${cy+60}" r="300" fill="url(#hgk${drop?1:0})"/>`;
+  s+=livroAberto(680,drop/60);
+  s+=`<g transform="rotate(${sw} ${cx} ${cy+150})">`;
+  s+=`<path d="M ${cx-110} ${cy+70} Q ${cx-250} ${cy+160} ${cx-280} ${cy+260} Q ${cx-160} ${cy+170} ${cx-40} ${cy+140} Z" fill="url(#tgk${drop?1:0})" opacity=".8"/>`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="150" fill="url(#cgk${drop?1:0})"/><g transform="translate(${cx} ${cy+20})">${faceCansado()}</g></g>`;
+  if(drop){ // pontinhos de "carregando" acima da cabeça, bem suaves
+    for(let i=0;i<3;i++){const o=.25+.6*Math.max(0,Math.sin(TAU*t/1.6-i*.9));
+      s+=`<circle cx="${cx-40+i*40}" cy="${cy-200}" r="12" fill="#AEB8D6" opacity="${o.toFixed(2)}"/>`;}
+  }
+  return s;
+}
+const X=.4; // crossfade
+window.render=function(t){
+  for(const s of stars) s.el.style.opacity=s.base+.2*Math.sin(s.ph+TAU*s.k*t/T);
+  const loop=t>=T-X, tl=loop?t-T:t;
+  // COMEÇO 0–2.2 (+ volta no loop)
+  const v1 = t<2.2+X ? (t<2.2?1:smooth((2.2+X-t)/X)) : (loop?smooth((t-(T-X))/X):0);
+  $('s1').style.opacity=v1;
+  $('ct').textContent=hms(10780+Math.floor(tl+.0001));
+  $('dot').style.opacity=.5+.5*Math.cos(TAU*t/(T/6));
+  $('n1').innerHTML=cansado(tl,0);
+  // MEIO 2.2–4.6
+  const v2=Math.min(smooth((t-2.2)/X),smooth((4.6+X-t)/X)); $('s2').style.opacity=t>=2.2&&t<4.6+X?v2:0;
+  $('n2').innerHTML=cansado(t,40*smooth((t-2.2)/1.4));
+  // VIRADA 4.6–7.4
+  const v3=Math.min(smooth((t-4.6)/X),smooth((7.4+X-t)/X)); $('s3').style.opacity=t>=4.6&&t<7.4+X?v3:0;
+  $('n3').innerHTML=ninoPausa(t);
+  $('d3').textContent=mmss(300-Math.max(0,Math.floor(t-4.8)));
+  // FIM 7.4–9.6
+  const v4=Math.min(smooth((t-7.4)/X),smooth((T-t)/X)); $('s4').style.opacity=t>=7.4?v4:0;
+  $('n4').innerHTML=ninoFesta(t);
+};
+window.render(0);
+</script></body></html>
